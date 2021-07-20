@@ -1,0 +1,93 @@
+---
+title: "Statistical Inference Course Project - 1"
+author: "Victor"
+date: "7/20/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simulation Exercise
+
+### Overview
+
+In this project, we will investigate the exponential distribution in R and compare it with the Central Limit Theorem, illustrating via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials.
+
+### Simulations
+
+```{r libraries}
+library(ggplot2)
+```
+
+We will simulate the exponential distribution with exp(n, lambda) where lambda is the rate parameter and n = 40. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda.
+
+We have set lambda = 0.2 for all of the simulations. We will need a thousand simulations.
+
+```{r simulation.exp}
+lambda = .2
+m0 = 1/lambda
+sd0 = 1/lambda
+n = 40
+mns = NULL
+for (i in 1 : 1000) mns = c(mns, mean(rexp(n, lambda)))
+```
+
+### Sample Mean versus Theoretical Mean
+
+We will show the sample mean and compare it to the theoretical mean of the distribution.
+
+First, let's see the sample mean.
+
+```{r mean}
+m1 <- mean(mns)
+m1
+m1 - m0
+hist(mns, main = "Sample mean", xlab = "Sample mean")
+```
+
+If we compare the sample mean with the theoretical mean of the distribution (1/lambda = 5), we have observed that the distribution of means is centered in the theoretical mean.
+
+### Sample Variance versus Theoretical Variance
+
+Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
+
+```{r variance}
+v0 <- (sd0^2/n)
+v1 <- var(mns)
+v1 - v0
+```
+
+If we compare the sample variance with the theoretical variance of the distribution (sd squared divided by n), we have observed that they only differ in -0.01, so they can be compared.
+
+### Distribution
+
+If we apply the CLT, we have to calculate the z-score.
+
+```{r normal.2}
+z.score <- (mns - m0) / (sd0 / sqrt(n))
+p2 <- ggplot(as.data.frame(z.score), aes(x = z.score))
+p2 <- p2 + stat_function(fun = dnorm, color = "red")
+p2 <- p2 + stat_function(fun = dnorm, args = list(mean = mean(z.score), sd = sd(z.score)), color = "blue")
+p2 <- p2 + labs(title = "Comparision of the distribution with a normal distribution 2", x = "Means", y = "Density")
+p2
+```
+
+The conclusion is the same. The distribution is centered at zero and it is really similar to the one of a normal distribution.
+
+## Appendix material
+
+We will show that the distribution is approximately normal comparing them with the density function (dnorm).
+
+```{r normal.1}
+p1 <- ggplot(as.data.frame(mns), aes(x = mns))
+p1 <- p1 + stat_function(fun = dnorm, args = list(mean = m0, sd = sqrt(v0)), color = "red")
+p1 <- p1 + stat_function(fun = dnorm, args = list(mean = m1, sd = sqrt(v1)), color = "blue")
+p1 <- p1 + labs(title = "Comparision of the distribution with a normal distribution 1", x = "Means", y = "Density")
+p1
+```
+
+As we can see, the distribution (blue) is approximately that of a standard normal (red).

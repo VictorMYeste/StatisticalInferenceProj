@@ -1,0 +1,101 @@
+---
+title: "Statistical Inference Course Project - 2"
+author: "Victor"
+date: "7/20/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Basic Inferential Data Analysis
+
+### Overview
+
+We're going to analyze the ToothGrowth data in the R datasets package, and we'll formulate some hypothesis about the tooth growth by supp and dose to extract conclusions about the effect that each supp and dose has in the tooth growth of the subjects.
+
+### Load the ToothGrowth data and perform some basic exploratory data analyses
+
+```{r libraries}
+library(ggplot2)
+library(datasets)
+```
+
+```{r load.data}
+data(ToothGrowth)
+str(ToothGrowth)
+summary(ToothGrowth)
+unique(ToothGrowth$supp)
+unique(ToothGrowth$dose)
+tapply(ToothGrowth$len, ToothGrowth$supp, mean)
+tapply(ToothGrowth$len, ToothGrowth$dose, mean)
+```
+
+### Provide a basic summary of the data.
+
+As we can see, there are two different values for supp and three for dose, for each the data set have several values of length. We can see the means for each type of supp and dose, observing that the OJ supp has a greater mean than the VC supp, and that length gets bigger with the more dose we use.
+
+### Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose.
+
+There is three distinct doses: 0.5, 1 and 2. We then extract 4 hypothesis to tooth growth by supp, depending on the dose:
+
+#### Base Hypothesis
+
+Hypothesis: Tooth growth does not change depending on the supp.
+
+```{r h1}
+t.test(len ~ supp, data = ToothGrowth)$conf.int
+t.test(len ~ supp, data = ToothGrowth)$p.value
+```
+
+The confidence interval includes 0 and the p-value is greater than 0.05, so we can't reject the null hypothesis.
+
+#### Dose 0.5 mg/day
+
+Hypothesis: Tooth growth does not change with a dose of 0.5 mg/day.
+
+```{r h2}
+t.test(len ~ supp, data = subset(ToothGrowth, dose == 0.5))$conf.int
+t.test(len ~ supp, data = subset(ToothGrowth, dose == 0.5))$p.value
+```
+
+The confidence interval does not includes 0 and the p-value is lower than 0.05, so we can reject the null hypothesis and accept the alternative hypothesis: Tooth growth change with a dose of 0.5 mg/day.
+
+#### Dose 1 mg/day
+
+Hypothesis: Tooth growth does not change with a dose of 1 mg/day.
+
+```{r h3}
+t.test(len ~ supp, data = subset(ToothGrowth, dose == 1))$conf.int
+t.test(len ~ supp, data = subset(ToothGrowth, dose == 1))$p.value
+```
+
+The confidence interval does not includes 0 and the p-value is lower than 0.05, so we can reject the null hypothesis and accept the alternative hypothesis: Tooth growth change with a dose of 1 mg/day.
+
+#### Dose 2 mg/day
+
+Hypothesis: Tooth growth does not change with a dose of 2 mg/day.
+
+```{r h4}
+t.test(len ~ supp, data = subset(ToothGrowth, dose == 2))$conf.int
+t.test(len ~ supp, data = subset(ToothGrowth, dose == 2))$p.value
+```
+
+The confidence interval includes 0 and the p-value is greater than 0.05, so we can't reject the null hypothesis.
+
+### State your conclusions and the assumptions needed for your conclusions.
+
+Orange juice provokes more teeth growth than ascorbic acid when using doses of 0.5 or 1 mg/day, and they provoke the same teeth growth with a dose of 2 mg/day. If we analyze all the data (hypothesis 1), we can't conclude that orange juice provokes more teeth growth than ascorbic acid.
+
+All these analysis have been done assuming a normal distribution for the tooth length and that we don't have to take into account other variables that could be affecting the tooth length in the subjects.
+
+### Appendix material
+
+```{r plot.data}
+p3 <- ggplot(ToothGrowth, aes(x = factor(dose), y = len))
+p3 <- p3 + facet_grid(.~supp) + geom_boxplot(aes(fill = supp)) + labs(title = "Length by dosage for each supplement", x = "Dosage", y = "Length")
+p3
+```
